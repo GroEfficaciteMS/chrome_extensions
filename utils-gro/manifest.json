@@ -1,0 +1,20 @@
+{
+  "manifest_version": 3,
+  "name": "Monday Column ID Debugger",
+  "version": "1.14",
+  "description": "Ajoute des suffixes dans les headers des colonnes Monday pour debug et affiche les IDs des colonnes dans les pulse-cards",
+  "permissions": [
+    "storage"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://*.monday.com/*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ]
+}

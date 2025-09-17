@@ -4,7 +4,7 @@
 - Ouvre `chrome://extensions/` (ou `edge://extensions/`).
 - Active le « Mode développeur » (coin supérieur droit).
 - Clique sur « Charger l’extension non empaquetée ».
-- Sélectionne le dossier à installer: `Monday Column Finder` ou `utils-gro`.
+- Sélectionne le dossier à installer: `Monday Column Finder` ou `utils-gro` => Non Zippé
 - Répète pour l’autre dossier si nécessaire.
 
 ### Plugins

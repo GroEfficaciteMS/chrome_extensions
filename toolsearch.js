@@ -1,6 +1,3 @@
-// Monday.com Column Finder - Script Console avec sauvegarde par board
-// Copiez-collez ce script dans la console de votre navigateur sur monday.com
-
 (function () {
     'use strict';
 

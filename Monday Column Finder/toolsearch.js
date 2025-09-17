@@ -396,9 +396,9 @@
                             ${this.columnDatabase.size > 0 ? `(${this.columnDatabase.size} colonnes)` : ''}
                         </div>
                         <div id="mondayFinderControls">
-                            <button class="mondayFinderBtn mondayFinderBtnPrimary" onclick="window.MondayColumnFinderInstance.forceRescan()">Scan</button>
-                            <button class="mondayFinderBtn mondayFinderBtnSecondary" onclick="window.MondayColumnFinderInstance.exportAllData()">Export All</button>
-                            <button class="mondayFinderBtn mondayFinderBtnDanger" onclick="window.MondayColumnFinderInstance.clearCurrentBoard()">Clear</button>
+                            <button id="mondayFinderScanBtn" class="mondayFinderBtn mondayFinderBtnPrimary">Scan</button>
+                            <button id="mondayFinderExportBtn" class="mondayFinderBtn mondayFinderBtnSecondary">Export All</button>
+                            <button id="mondayFinderClearBtn" class="mondayFinderBtn mondayFinderBtnDanger">Clear</button>
                         </div>
                         <input type="text" id="mondayFinderSearch" placeholder="Rechercher par nom ou ID de colonne..." />
                         <div id="mondayFinderStatus">Initialisation...</div>
@@ -498,6 +498,21 @@
                     e.stopPropagation();
                     this.toggleTool();
                 });
+            }
+
+            const scanBtn = document.getElementById('mondayFinderScanBtn');
+            if (scanBtn) {
+                scanBtn.addEventListener('click', () => this.forceRescan());
+            }
+
+            const exportBtn = document.getElementById('mondayFinderExportBtn');
+            if (exportBtn) {
+                exportBtn.addEventListener('click', () => this.exportAllData());
+            }
+
+            const clearBtn = document.getElementById('mondayFinderClearBtn');
+            if (clearBtn) {
+                clearBtn.addEventListener('click', () => this.clearCurrentBoard());
             }
         }
 
@@ -657,13 +672,19 @@
             }
 
             const html = results.map(result => `
-                <div class="mondayFinderResultItem" onclick="window.MondayColumnFinderInstance.copyToClipboard('${result.id}')" title="Cliquer pour copier l'ID">
+                <div class="mondayFinderResultItem" data-id="${result.id}" title="Cliquer pour copier l'ID">
                     <div class="mondayFinderResultName">${this.escapeHtml(result.name)}</div>
                     <div class="mondayFinderResultId">${result.id}</div>
                 </div>
             `).join('');
 
             resultsContainer.innerHTML = html;
+
+            // Bind click handlers without inline attributes (CSP-friendly)
+            resultsContainer.querySelectorAll('.mondayFinderResultItem').forEach((item) => {
+                const id = item.getAttribute('data-id');
+                item.addEventListener('click', () => this.copyToClipboard(id));
+            });
         }
 
         escapeHtml(unsafe) {

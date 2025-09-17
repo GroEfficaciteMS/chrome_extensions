@@ -9,19 +9,9 @@
                 "https://*.monday.com/boards/*"
             ],
             "js": [
-                "content.js"
-            ],
-            "run_at": "document_idle"
-        }
-    ],
-    "web_accessible_resources": [
-        {
-            "resources": [
                 "toolsearch.js"
             ],
-            "matches": [
-                "https://*.monday.com/*"
-            ]
+            "run_at": "document_idle"
         }
     ]
 }

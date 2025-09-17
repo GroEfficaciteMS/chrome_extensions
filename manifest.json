@@ -1,0 +1,27 @@
+{
+    "manifest_version": 3,
+    "name": "Monday Column Finder",
+    "version": "1.0.1",
+    "description": "Find Monday column IDs by name with per-board memory and search.",
+    "content_scripts": [
+        {
+            "matches": [
+                "https://*.monday.com/boards/*"
+            ],
+            "js": [
+                "content.js"
+            ],
+            "run_at": "document_idle"
+        }
+    ],
+    "web_accessible_resources": [
+        {
+            "resources": [
+                "toolsearch.js"
+            ],
+            "matches": [
+                "https://*.monday.com/*"
+            ]
+        }
+    ]
+}

@@ -18,20 +18,43 @@
     };
   }
 
-  // Add CSS rules for pulse-card-row pseudo-element
+  // Add/update CSS rules for pulse-card badges (no ::after)
   function addPulseCardStyles() {
     const styleId = 'pulse-card-custom-styles';
+    const desiredCss = `
+      .dev-pulse-card-suffix {
+        display: block;
+        font-size: 11px;
+        color: #0073ea;
+        font-style: italic;
+        margin-top: 4px;
+        order: -1;
+      }
+    `;
+    let style = document.getElementById(styleId);
+    if (!style) {
+      style = document.createElement('style');
+      style.id = styleId;
+      document.head.appendChild(style);
+    }
+    style.textContent = desiredCss;
+  }
+
+  // Styles for item id badges under name cells
+  function addItemIdStyles() {
+    const styleId = 'dev-itemid-custom-styles';
     if (!document.getElementById(styleId)) {
       const style = document.createElement('style');
       style.id = styleId;
       style.textContent = `
-        .pulse-card-row .title-text::after {
-          content: attr(data-column-id);
-          display: block;
+        .dev-itemid-suffix {
           font-size: 11px;
-          color: #8d6b00;
+          color: #0073ea;
           font-style: italic;
-          margin-top: 4px;
+          position: absolute;
+          bottom: -10px;
+          left: 5px;
+          pointer-events: none;
         }
       `;
       document.head.appendChild(style);
@@ -111,9 +134,12 @@
       document.querySelectorAll('.pulse-card-row').forEach(row => {
         const columnId = row.getAttribute('data-column-id');
         const titleText = row.querySelector('.title-text');
-        if (titleText && columnId && !titleText.hasAttribute('data-column-id')) {
-          titleText.setAttribute('data-column-id', columnId);
-        }
+        if (!titleText || !columnId) return;
+        if (titleText.querySelector('.dev-pulse-card-suffix')) return;
+        const badge = document.createElement('span');
+        badge.className = 'dev-pulse-card-suffix';
+        badge.textContent = columnId;
+        titleText.appendChild(badge);
       });
     } catch (error) {
       console.error('Erreur dans updatePulseCards:', error);
@@ -121,6 +147,40 @@
   }
 
   const debouncedPulseUpdate = debounce(updatePulseCards, 150);
+
+  // Ajouter l'ID d'item sous le nom, si absent
+  function updateItemIds() {
+    try {
+      addItemIdStyles();
+      const wrappers = document.querySelectorAll('div[data-testid^="item-"]');
+      wrappers.forEach(wrapper => {
+        if (wrapper.hasAttribute('data-itemid-added')) return;
+        const testid = wrapper.getAttribute('data-testid') || '';
+        const match = /^item-(\d+)/.exec(testid);
+        if (!match) return;
+        const itemId = match[1];
+
+        const nameCell = wrapper.querySelector('.name-cell-text');
+        if (!nameCell) return;
+        if (nameCell.querySelector('.dev-itemid-suffix')) {
+          wrapper.setAttribute('data-itemid-added', 'true');
+          return;
+        }
+        if (getComputedStyle(nameCell).position === 'static') {
+          nameCell.style.position = 'relative';
+        }
+        const badge = document.createElement('span');
+        badge.className = 'dev-itemid-suffix';
+        badge.textContent = `#${itemId}`;
+        nameCell.appendChild(badge);
+        wrapper.setAttribute('data-itemid-added', 'true');
+      });
+    } catch (error) {
+      console.error('Erreur dans updateItemIds:', error);
+    }
+  }
+
+  const debouncedItemIdsUpdate = debounce(updateItemIds, 150);
 
   function createMutationObserver() {
     if (mutationObserver) {
@@ -140,7 +200,9 @@
               node.classList?.contains('column-header') ||
               node.querySelector?.('.column-header') ||
               node.classList?.contains('pulse-card-row') ||
-              node.querySelector?.('.pulse-card-row')
+              node.querySelector?.('.pulse-card-row') ||
+              node.matches?.('div[data-testid^="item-"]') ||
+              node.querySelector?.('div[data-testid^="item-"]')
             )
           );
           if (hasRelevantNodes) shouldUpdate = true;
@@ -155,6 +217,7 @@
       if (shouldUpdate) {
         debouncedUpdate();
         debouncedPulseUpdate();
+        debouncedItemIdsUpdate();
       }
     });
 
@@ -216,6 +279,7 @@
       createMutationObserver();
       createIntersectionObserver();
       debouncedUpdate();
+      debouncedItemIdsUpdate();
     }
   }
 
@@ -235,8 +299,12 @@
 
       // Nettoyer les suffixes existants
       document.querySelectorAll('.dev-column-suffix').forEach(el => el.remove());
+      document.querySelectorAll('.dev-itemid-suffix').forEach(el => el.remove());
       document.querySelectorAll('[data-suffix-added]').forEach(el => {
         el.removeAttribute('data-suffix-added');
+      });
+      document.querySelectorAll('[data-itemid-added]').forEach(el => {
+        el.removeAttribute('data-itemid-added');
       });
 
       console.log("⏹️ Observers arrêtés");

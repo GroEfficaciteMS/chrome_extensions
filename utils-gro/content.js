@@ -23,12 +23,15 @@
     const styleId = 'pulse-card-custom-styles';
     const desiredCss = `
       .dev-pulse-card-suffix {
-        display: block;
         font-size: 11px;
         color: #0073ea;
         font-style: italic;
-        margin-top: 4px;
-        order: -1;
+        top: -8px;
+        position: absolute;
+        height: 10px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
       }
     `;
     let style = document.getElementById(styleId);
@@ -136,6 +139,13 @@
         const titleText = row.querySelector('.title-text');
         if (!titleText || !columnId) return;
         if (titleText.querySelector('.dev-pulse-card-suffix')) return;
+        
+        // S'assurer que title-text a position: relative
+        if (getComputedStyle(titleText).position === 'static') {
+          titleText.style.position = 'relative';
+          titleText.style.overflow = 'visible';
+        }
+        
         const badge = document.createElement('span');
         badge.className = 'dev-pulse-card-suffix';
         badge.textContent = columnId;
